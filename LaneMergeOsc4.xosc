@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OpenSCENARIO>
+    
+<FileHeader revMajor="0" revMinor="1" date="2019-05-09T16:00:00" description="Sample Scenario - LaneMerge" author="Deepak Reddy"/>
+
+<ParameterDeclaration> 
+    <Parameter name="Town"   type="xsd:string"  value="Town06"/>
+</ParameterDeclaration>
+
+<Catalogs>
+    <VehicleCatalog>
+        <Directory path="Catalogs/VehicleCatalogs"/>
+    </VehicleCatalog>
+    <DriverCatalog>
+        <Directory path="Catalogs/DriverCatalogs"/>
+    </DriverCatalog>
+    <PedestrianCatalog>
+        <Directory path="Catalogs/ObserverCatalogs"/>
+    </PedestrianCatalog>
+    <PedestrianControllerCatalog>
+        <Directory path="Catalogs/PedestrianCatalogs"/>
+    </PedestrianControllerCatalog>
+    <MiscObjectCatalog>
+        <Directory path="Catalogs/MiscObjectCatalogs"/>
+    </MiscObjectCatalog>
+    <EnvironmentCatalog>
+        <Directory path="Catalogs/EnvironmentCatalogs"/>
+    </EnvironmentCatalog>
+    <ManeuverCatalog>
+        <Directory path="Catalogs/ManeuverCatalogs"/>
+    </ManeuverCatalog>
+    <TrajectoryCatalog>
+        <Directory path="Catalogs/TrajectoryCatalog"/>
+    </TrajectoryCatalog>
+    <RouteCatalog>
+        <Directory path="Catalogs/RoutingCatalog"/>
+    </RouteCatalog>
+</Catalogs>
+
+<RoadNetwork>
+    <Logics filepath="SampleDatabase_01.xodr"/>
+    <SceneGraph filepath="SampleDatabase_01.opt.osgb"/>
+</RoadNetwork>
+
+<Entities>
+    <Object name="Ego">
+        <Vehicle name="vehicle.chevrolet.impala" category="car"/>
+        <Controller>
+            <Driver name="DefaultDriver"/>
+        </Controller>
+    </Object>
+    <Object name="Other1">
+        <Vehicle name="vehicle.nissan.patrol" category="car"/>
+        <Controller>
+            <Driver name="DefaultDriver"/>
+        </Controller>
+    </Object>
+</Entities>
+
+<Storyboard>
+    <Init>
+        <Actions>
+            <Private object="Ego">
+                <Action>
+                    <Longitudinal>
+                        <Speed>
+                            <Dynamics shape="step"/>
+                            <Target>
+                                <Absolute value="3.6111111111111107e+01"/>
+                            </Target>
+                        </Speed>
+                    </Longitudinal>
+                </Action>
+                <Action>
+                    <Position>
+                        <World x="-180" y="243.6" z="1" h="0e+00" p="0.0000000000000000e+00" r="0.0000000000000000e+00"/>
+                    </Position>
+                </Action>
+            </Private>
+            <Private object="Other1">
+                <Action>
+                    <Longitudinal>
+                        <Speed>
+                            <Dynamics shape="step"/>
+                            <Target>
+                                <Absolute value="4.1666666666666664e+01"/>
+                            </Target>
+                        </Speed>
+                    </Longitudinal>
+                </Action>
+                <Action>
+                    <Position>
+                        <World x="-179" y="239.8" z="1" h="0e+00" p="0.0000000000000000e+00" r="0.0000000000000000e+00"/>
+                    </Position>
+                </Action>
+            </Private>
+        </Actions>
+    </Init>
+    <Story name="MyStory" owner="Other1">
+        <Act name="MyAct">
+            <Sequence name="MySequence" numberOfExecutions="1">
+                <Actors>
+                    <Entity name="other1"/>
+                </Actors>
+                <Maneuver name="LaneMergeRight">
+                    <Event name="MoveAheadEvent" priority="overwrite">
+                        <Action name="InTriggerBehindDistanceToVehicle">
+                            <Private>
+                                <Longitudinal>
+                                    <Speed>
+                                        <Dynamics shape="linear"/>
+                                        <Target>
+                                            <Absolute value="4.50e+01"/>
+                                        </Target>
+                                    </Speed>
+                                </Longitudinal>
+                            </Private>
+                        </Action>
+                        <StartConditions>
+                            <ConditionGroup>
+                                <Condition name="MyStartCondition1" delay="0" edge="rising">
+                                    <ByEntity>
+                                        <TriggeringEntities rule="any">
+                                            <Entity name="other1"/>
+                                        </TriggeringEntities>
+                                        <EntityCondition>
+                                            <Distance value="1.0000000000000000e+01" freespace="false" alongRoute="false" rule="greater_than">
+                                                <Position>
+                                                    <RelativeObject object="Ego" dx="0.0000000000000000e+00" dy="0.0000000000000000e+00"/>
+                                                </Position>
+                                            </Distance>
+                                        </EntityCondition>
+                                    </ByEntity>
+                                </Condition>
+                            </ConditionGroup>
+                        </StartConditions>
+                    </Event>
+                    <Event name="LaneMergeRightEvent" priority="overwrite">
+                        <Action name="ChangeLaneBehavior">
+                            <Private>
+                                <Lateral>
+                                    <LaneChange>
+                                        <Dynamics shape="sinusoidal" time="5"/>
+                                        <Target>
+                                            <Relative object="other1" value="-1"/>
+                                        </Target>
+                                    </LaneChange>
+                                </Lateral>
+                            </Private>
+                        </Action>
+                        <StartConditions>
+                            <ConditionGroup>
+                                <Condition name="MyStartCondition2" delay="0" edge="rising">
+                                    <ByEntity>
+                                        <TriggeringEntities rule="any">
+                                            <Entity name="other1"/>
+                                        </TriggeringEntities>
+                                        <EntityCondition>
+                                            <Distance value="3.0000000000000000e+01" freespace="false" alongRoute="false" rule="greater_than">
+                                                <Position>
+                                                    <RelativeObject object="other1" dx="0.0000000000000000e+00" dy="0.0000000000000000e+00"/>
+                                                </Position>
+                                            </Distance>
+                                        </EntityCondition>
+                                    </ByEntity>
+                                </Condition>
+                            </ConditionGroup>
+                        </StartConditions>
+                    </Event>
+                    <Event name="MoveForwardEvent" priority="overwrite">
+                        <Action name="MoveForward">
+                            <Private>
+                                <Longitudinal>
+                                    <Speed>
+                                        <Dynamics shape="linear"/>
+                                        <Target>
+                                            <Absolute value="4.50e+01"/>
+                                        </Target>
+                                    </Speed>
+                                </Longitudinal>
+                            </Private>
+                        </Action>
+                        <StartConditions>
+                            <ConditionGroup>
+                                <Condition name="MyStartCondition3" delay="0" edge="rising">
+                                    <ByState>
+                                        <AfterTermination type="action" name="ChangeLaneBehavior" rule="any"/>
+                                    </ByState>
+                                </Condition>
+                            </ConditionGroup>
+                        </StartConditions>
+                    </Event>
+                </Maneuver>
+            </Sequence>
+            <Conditions>
+                <Start>
+                    <ConditionGroup>
+                        <Condition name="" delay="0" edge="rising">
+                            <ByValue>
+                                <SimulationTime value="0" rule="equal_to"/>
+                            </ByValue>
+                        </Condition>
+                    </ConditionGroup>
+                </Start>
+            </Conditions>
+        </Act>
+    </Story>
+    <EndConditions/>
+</Storyboard>
+
+</OpenSCENARIO>
